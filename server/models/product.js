@@ -1,47 +1,26 @@
-// const { DataTypes } = require('sequelize');
-// const sequelize = require('../config/db');
 
-// const Product = sequelize.define('Product', {
-//   id: {
-//     type: DataTypes.INTEGER,
-//     primaryKey: true,
-//   },
-//   product_name: {
-//     type: DataTypes.STRING,
-//   },
-//   department: {
-//     type: DataTypes.STRING,
-//   },
-//   price: {
-//     type: DataTypes.FLOAT,
-//   },
-//   image: {
-//     type: DataTypes.STRING,
-//   }
-// }, {
-//   timestamps: false,
-// });
+module.exports = (sequelize, DataTypes) => {
+  const Product = sequelize.define('Product', {
+    id: { type: DataTypes.INTEGER, primaryKey: true },
+    name: DataTypes.STRING,
+    brand: DataTypes.STRING,
+    category: DataTypes.STRING,
+    cost: DataTypes.FLOAT,
+    retail_price: DataTypes.FLOAT,
+    sku: DataTypes.STRING,
+    distribution_center_id: DataTypes.INTEGER,
+    department_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Departments',
+        key: 'id',
+      }
+    }
+  });
 
-// module.exports = Product;
+  Product.associate = (models) => {
+    Product.belongsTo(models.Department, { foreignKey: 'department_id' });
+  };
 
-
-
-
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
-
-const Product = sequelize.define('Product', {
-  id: { type: DataTypes.INTEGER, primaryKey: true },
-  cost: DataTypes.FLOAT,
-  category: DataTypes.STRING,
-  name: DataTypes.STRING,
-  brand: DataTypes.STRING,
-  price: DataTypes.FLOAT,
-  department: DataTypes.STRING,
-  sku: DataTypes.STRING,
-  distribution_center_id: DataTypes.INTEGER
-}, {
-  timestamps: false
-});
-
-module.exports = Product;
+  return Product;
+};

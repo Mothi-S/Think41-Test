@@ -1,89 +1,48 @@
-// const fs = require('fs');
-// const csv = require('csv-parser');
-// const Product = require('../models/product');
-// const sequelize = require('../config/db');
 
-// async function loadCSV() {
-//   try {
-//     await sequelize.sync({ force: true });
-//     console.log('Database synced.');
 
-//     const products = [];
 
-//     fs.createReadStream('./data/products.csv')
-//       .pipe(csv())
-//       .on('data', (row) => {
-//         console.log(row);
-//         products.push({
-//   id: parseInt(row.id),
-//   cost: parseFloat(row.cost),
-//   category: row.category,
-//   product_name: row.name,          // ✅ 'name' is the CSV header
-//   brand: row.brand,
-//   price: parseFloat(row.retail_price),
-//   department: row.department,
-//   sku: row.sku,
-//   distribution_center_id: parseInt(row.distribution_center_id)
-// });
-
-//         // products.push({
-//         //   id: parseInt(row.id),
-//         //   product_name: row.product_name,
-//         //   department: row.department,
-//         //   price: parseFloat(row.price),
-//         //   image: row.image
-//         // });
-//       })
-//       .on('end', async () => {
-//         await Product.bulkCreate(products);
-//         console.log('CSV data loaded successfully.');
-//         process.exit();
-//       });
-
-//   } catch (err) {
-//     console.error('Error loading CSV:', err);
-//   }
-// }
-
-// loadCSV();
 
 
 const fs = require('fs');
 const csv = require('csv-parser');
-const sequelize = require('../config/db');
-const Product = require('../models/product');
+const { Product, Department, sequelize } = require('../models');
 
-async function loadCSV() {
-  try {
-    await sequelize.sync({ force: true });
-    console.log('Database synced.');
+const results = [];
 
-    const products = [];
+fs.createReadStream('./data/products.csv')
+  .pipe(csv())
+  .on('data', (data) => results.push(data))
+  .on('end', async () => {
+    try {
+      await sequelize.sync();
 
-    fs.createReadStream('./data/products.csv')
-      .pipe(csv())
-      .on('data', (row) => {
-        products.push({
-          id: parseInt(row.id),
-          cost: parseFloat(row.cost),
-          category: row.category,
+      // Step 1: Extract unique departments
+      const uniqueDepartments = [...new Set(results.map(r => r.department))];
+
+      // Step 2: Insert departments if not exist
+      for (const deptName of uniqueDepartments) {
+        await Department.findOrCreate({ where: { name: deptName } });
+      }
+
+      // Step 3: Insert products with department_id
+      for (const row of results) {
+        const dept = await Department.findOne({ where: { name: row.department } });
+
+        await Product.create({
+          id: row.id,
           name: row.name,
           brand: row.brand,
-          price: parseFloat(row.retail_price),
-          department: row.department,
+          category: row.category,
+          cost: parseFloat(row.cost),
+          retail_price: parseFloat(row.retail_price),
           sku: row.sku,
-          distribution_center_id: parseInt(row.distribution_center_id)
+          distribution_center_id: parseInt(row.distribution_center_id),
+          department_id: dept.id
         });
-      })
-      .on('end', async () => {
-        await Product.bulkCreate(products);
-        console.log('CSV data loaded successfully.');
-        process.exit();
-      });
+      }
 
-  } catch (error) {
-    console.error('Error loading CSV:', error);
-  }
-}
-
-loadCSV();
+      console.log('✅ Product data loaded successfully.');
+    } catch (err) {
+      console.error('❌ Error:', err);
+    }
+  });
