@@ -1,25 +1,47 @@
+// const { DataTypes } = require('sequelize');
+// const sequelize = require('../config/db');
+
+// const Product = sequelize.define('Product', {
+//   id: {
+//     type: DataTypes.INTEGER,
+//     primaryKey: true,
+//   },
+//   product_name: {
+//     type: DataTypes.STRING,
+//   },
+//   department: {
+//     type: DataTypes.STRING,
+//   },
+//   price: {
+//     type: DataTypes.FLOAT,
+//   },
+//   image: {
+//     type: DataTypes.STRING,
+//   }
+// }, {
+//   timestamps: false,
+// });
+
+// module.exports = Product;
+
+
+
+
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
 const Product = sequelize.define('Product', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-  },
-  product_name: {
-    type: DataTypes.STRING,
-  },
-  department: {
-    type: DataTypes.STRING,
-  },
-  price: {
-    type: DataTypes.FLOAT,
-  },
-  image: {
-    type: DataTypes.STRING,
-  }
+  id: { type: DataTypes.INTEGER, primaryKey: true },
+  cost: DataTypes.FLOAT,
+  category: DataTypes.STRING,
+  name: DataTypes.STRING,
+  brand: DataTypes.STRING,
+  price: DataTypes.FLOAT,
+  department: DataTypes.STRING,
+  sku: DataTypes.STRING,
+  distribution_center_id: DataTypes.INTEGER
 }, {
-  timestamps: false,
+  timestamps: false
 });
 
 module.exports = Product;
