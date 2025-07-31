@@ -17,7 +17,11 @@ A full-stack product management application built as part of the Think41 assignm
 ---
 
 ### 🛒 Products in Selected Department
+
+## Men
 ![Department Products](3.png)
+
+## Women
 ![Department Products](4.png)
 
 ---
